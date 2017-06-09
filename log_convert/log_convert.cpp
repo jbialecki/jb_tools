@@ -43,6 +43,7 @@ private:
 };
 LogLine lastRecordLine;
 unsigned int LogLine::fawMax = 40;
+unsigned int labelMax = 34;
 int recordNo = 0;
 
 void trim(string &s)
@@ -180,7 +181,7 @@ void LogLine::print(ostringstream &o)
 void LogLine::printNewRec(ostringstream &o) 
 {
 	processParams();
-	o << thrId << " | " << setfill(' ') << setw(10) << recordNo++ << " | " << time << " | " << setfill(' ') << setw(fawMax) << fileAndLine << " | " << label << " | " << processedParams << endl;
+	o << thrId << " | " << setfill(' ') << setw(10) << recordNo++ << " | " << time << " | " << setfill(' ') << setw(fawMax) << fileAndLine << " | " << setw(labelMax) << label << " | " << processedParams << endl;
 }
 void LogLine::printNewThr(ostringstream &o) const
 {
