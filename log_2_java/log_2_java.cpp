@@ -22,7 +22,10 @@ void trim(string &s)
 {
 	int pos1 = s.find_first_not_of(" ");
 	int pos2 = s.find_last_not_of(" ");
-	s = s.substr(pos1, pos2-pos1+1);
+	if(pos1 == -1)
+		s = "";
+	else
+		s = s.substr(pos1, pos2-pos1+1);
 }
 void parseLine(const string &line, Record &r)
 {

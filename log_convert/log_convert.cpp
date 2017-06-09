@@ -42,8 +42,20 @@ private:
 	
 };
 LogLine lastRecordLine;
-unsigned int LogLine::fawMax = 0;
+unsigned int LogLine::fawMax = 40;
 int recordNo = 0;
+
+void trim(string &s)
+{
+	int pos1 = s.find_first_not_of(" ");
+	int pos2 = s.find_last_not_of(" ");
+	if(pos1 == -1)
+		s = "";
+	else
+		s = s.substr(pos1, pos2-pos1+1);
+}
+
+
 void LogLine::clear()
 {
 	type = LT_NEW_THR;
@@ -90,13 +102,37 @@ void LogLine::parseLine(const string &line, ostringstream *o)
 
 void LogLine::parseNewRec(const string &line)
 {
-	thrId = line.substr(0, 4);
-	label = line.substr(7, 33);
-	params = line.substr(40, 56);
-	time = line.substr(99, 23);
-	fileAndLine = line.substr(125, -1);
+	int pos[3]; // positions of '|'
+	pos[0] = line.find_first_of("|", 0);
+	if(pos[0] == -1)
+		return;
+	for(int i=1; i<3; i++)
+	{
+		pos[i] = line.find_first_of("|", pos[i-1]+1);
+		if(pos[i] == -1)
+			return;
+	}
+	thrId = line.substr(0, pos[0]);
+	trim(thrId);
+	time = line.substr(pos[1]+1, pos[2]-pos[1]-1);
+	trim(time);
+	fileAndLine = line.substr(pos[2]+1, -1);
+	trim(fileAndLine);
 	if(fileAndLine.size() > fawMax)
 		fawMax = fileAndLine.size();
+	int pos_e = line.find_first_of("=", pos[0]+1);
+	if(pos_e == -1)
+		label = line.substr(pos[0]+1, pos[1]-pos[0]-1);
+	else
+	{
+		// seek the word just before '='
+		int pos_eow = line.find_last_not_of(" ", pos_e-1);
+		int pos_bow = line.find_last_of(" ", pos_eow);
+		label = line.substr(pos[0]+1, pos_bow-pos[0]-1);
+		params = line.substr(pos_bow+1, pos[1]-pos_bow-1);
+	}
+	trim(label);
+	trim(params);
 }
 void LogLine::parseParam(const string &line)
 {
@@ -154,9 +190,8 @@ int main(int argc, char* argv[])
 {
 	string line;
 	list<LogLine> lines;
-	int cnt = 0;
-	ifstream f_in("c:\\prj\\logs\\Read_WDT\\Read_WDT_short.txt");
-	ofstream f_out("c:\\prj\\logs\\Read_WDT\\processed_short.txt");
+	ifstream f_in("c:\\prj\\logs\\Read_WDT\\Read_WDT.txt");
+	ofstream f_out("c:\\prj\\logs\\Read_WDT\\processed.txt");
 	int i = 0;
 	while(getline(f_in, line))
 	{
@@ -170,7 +205,7 @@ int main(int argc, char* argv[])
 			cout << i << endl;
 	}
 	
-	cout << cnt << " lines" << endl;
+	cout << "OK" << endl;
 	return 0;
 }
 
