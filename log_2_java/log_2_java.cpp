@@ -13,11 +13,17 @@ using namespace std;
 class Record
 {
 public:
+	Record();
 	string logLine;
 	string srcFile;
 	string srcLine;
+	int srcLineInt;
 	string msg;    
 };
+Record::Record()
+{
+	srcLineInt = 0;
+}
 void trim(string &s)
 {
 	int pos1 = s.find_first_not_of(" ");
@@ -72,8 +78,24 @@ void printLine(const string &line, ofstream &out)
 
 int main(int argc, char* argv[])
 {
-        ifstream f_in("c:\\prj\\logs\\Read_WDT\\processed_short.txt");
-	ofstream f_out("c:\\prj\\logs\\Read_WDT\\java_short.txt");
+	if(argc != 3)
+	{
+		cout << "Syntax error. Correct syntax:" << endl;
+		cout << "log_2_java in_file out_file" << endl;
+		return 1;
+	}
+        ifstream f_in(argv[1]);
+	if(!f_in.is_open())
+	{
+		cout << "in_file not found: " << argv[1] << endl;
+		return 1;
+	}
+	ofstream f_out(argv[2]);
+	if(!f_out.is_open())
+	{
+		cout << "Can not create out_file: " << argv[2] << endl;
+		return 1;
+	}
 
 	string line;
 	while(getline(f_in, line))
