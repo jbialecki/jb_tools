@@ -45,14 +45,13 @@ int main(int argc, char* argv[])
 	{
 		if(line.find(argv[1]) != -1)
 		{
-			cout << line << endl;
+			cout << line;
 			for(int i=1; i<printLines; i++)
 			{
 				getline(f_in, line);
-				cout << line << endl;
+				cout << "~" << line;
 			}
-			if(printLines > 1)
-				cout << endl;
+			cout << endl;
 		}
 	}
 	return 0;
