@@ -1,0 +1,6 @@
+BUILD_DIR=../build
+BUILD_SUBDIR=grp
+
+cd $BUILD_DIR/$BUILD_SUBDIR
+
+ninja
