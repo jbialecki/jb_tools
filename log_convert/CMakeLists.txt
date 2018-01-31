@@ -2,5 +2,8 @@ cmake_minimum_required (VERSION 2.8.11)
 
 project (HELLO)
 
+include_directories(../common)
+
 add_executable (log_convert 
-		log_convert.cpp)
+		main.cpp
+		../common/log_convert.cpp)
