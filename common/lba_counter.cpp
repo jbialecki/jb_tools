@@ -1,6 +1,8 @@
 #include <iostream>
 #include "lba_counter.h"
 
+static const char separator = ';';
+
 using namespace std;
 
 void LbaCounter::incCount(const char *lba)
@@ -44,7 +46,6 @@ void TraceMap::countTrace(const char *trace, const char *lba)
 }
 void TraceMap::print() const
 {
-	const char separator = ',';
 	// header
 	cout << "trace";
 	for(set<string>::const_iterator lbaIt = allLbas.begin(); lbaIt != allLbas.end(); lbaIt++)
@@ -58,5 +59,22 @@ void TraceMap::print() const
 		for( set<string>::const_iterator aIt = allLbas.begin(); aIt != allLbas.end(); aIt++)
 			cout << separator << traceIt->second.getCount(aIt->c_str());
 		cout << endl;
+	}
+}
+void TraceMap::print(ostringstream &o) const
+{
+	// header
+	o << "trace";
+	for(set<string>::const_iterator lbaIt = allLbas.begin(); lbaIt != allLbas.end(); lbaIt++)
+		o << separator << *lbaIt;
+	o << endl;
+	map<string, LbaCounter>::const_iterator traceIt = traceMap.begin();
+	for( ; traceIt!=traceMap.end(); traceIt++)
+	{
+		o << traceIt->first;
+
+		for( set<string>::const_iterator aIt = allLbas.begin(); aIt != allLbas.end(); aIt++)
+			o << separator << traceIt->second.getCount(aIt->c_str());
+		o << endl;
 	}
 }
