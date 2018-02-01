@@ -25,26 +25,28 @@ class LogRecord
 {
 public:
 	LogRecord();
-	void print(std::ostringstream &o) const;
-	void clear();
+	
+	RecordType  getType() const;
+	const char *getThrId() const;
+	const char *getLabel() const;
+	const char *getParams() const;
+	const char *getTime() const;
+	const char *getFileAndLine() const;
 
+private:
 	RecordType type;
 	std::string thrId;
 	std::string label;
+	std::string rawParams;
 	std::string processedParams;
 	std::string time;
 	std::string fileAndLine;
 
-private:
-	std::string rawParams;
-
+	void clear();
 	void parseNewRec(const std::string &line);
 	void parseNewThr(const std::string &line);
 	void parseParam(const std::string &line);
 	void processParams();
-
-	void printNewRec(std::ostringstream &o) const;
-	void printNewThr(std::ostringstream &o) const;
 
 	friend class LogParser;
 };

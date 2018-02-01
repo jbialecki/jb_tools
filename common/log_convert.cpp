@@ -5,9 +5,6 @@ using namespace std;
 
 static LogRecord lastRecord;
 static LogRecord currRecord;
-static unsigned int fawMax = 40;
-static unsigned int labelMax = 34;
-static int recordNo = 0;
 
 void trim(string &s)
 {
@@ -32,6 +29,30 @@ void LogRecord::clear()
 	time = "";
 	fileAndLine = "";
 	processedParams = "";
+}
+RecordType  LogRecord::getType() const
+{
+	return type;
+}
+const char *LogRecord::getThrId() const
+{
+	return thrId.c_str();
+}
+const char *LogRecord::getLabel() const
+{
+	return label.c_str();
+}
+const char *LogRecord::getParams() const
+{
+	return processedParams.c_str();
+}
+const char *LogRecord::getTime() const
+{
+	return time.c_str();
+}
+const char *LogRecord::getFileAndLine() const
+{
+	return fileAndLine.c_str();
 }
 static LineType recognizeLineType(const string &line)
 {
@@ -92,8 +113,6 @@ void LogRecord::parseNewRec(const string &line)
 	trim(time);
 	fileAndLine = line.substr(pos[2]+1, -1);
 	trim(fileAndLine);
-	if(fileAndLine.size() > fawMax)
-		fawMax = fileAndLine.size();
 	int pos_e = line.find_first_of("=", pos[0]+1);
 	if(pos_e == -1)
 		label = line.substr(pos[0]+1, pos[1]-pos[0]-1);
@@ -139,25 +158,4 @@ void LogRecord::processParams()
 	processedParams = out.str();
 }
 
-void LogRecord::print(ostringstream &o) const
-{
-	switch(type)
-	{
-	case RecordType::CTX_SWITCH:
-		printNewThr(o);
-		return;
-	case RecordType::TRACE:
-		printNewRec(o);
-		return;
-	}
-}
-
-void LogRecord::printNewRec(ostringstream &o) const
-{
-	o << thrId << " | " << setfill(' ') << setw(10) << recordNo++ << " | " << time << " | " << setfill(' ') << setw(fawMax) << fileAndLine << " | " << setw(labelMax) << label << " | " << processedParams << endl;
-}
-void LogRecord::printNewThr(ostringstream &o) const
-{
-	o << thrId << " | " << setfill(' ') << setw(10) << recordNo++ << " | " << time << " +----------------------------------------------------------------------------------------------+ " << endl;
-}
 
