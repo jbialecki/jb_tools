@@ -56,11 +56,11 @@ const char *LogRecord::getFileAndLine() const
 }
 static LineType recognizeLineType(const string &line)
 {
-	if((line.size() >= 150) && (line[5] == '+') )
+	if((line.size() >= 150) && (line[7] == '+') )
 		return LineType::NEW_THR;
-	if( (line.size() >= 147) && (line[0] == '[')   &&   (line[3] == ']') )
+	if( (line.size() >= 147) && (line[0] == '[')  )
 		return LineType::NEW_REC;
-	if( (line.size() >= 100) && (line[5] == '|') )
+	if( (line.size() >= 100) && (line[7] == '|') )
 		return LineType::PARAM;
 	return LineType::OTHER;
 }
@@ -136,8 +136,24 @@ void LogRecord::parseParam(const string &line)
 }
 void LogRecord::parseNewThr(const string &line)
 {
-	thrId = line.substr(0, 4);
-	time = line.substr(99, 23);
+	int pos[3]; // positions of '+'
+	pos[0] = line.find_first_of("+", 0);
+	if(pos[0] == -1)
+		return;
+	for(int i=1; i<3; i++)
+	{
+		pos[i] = line.find_first_of("+", pos[i-1]+1);
+		if(pos[i] == -1)
+			return;
+	}
+
+	thrId = line.substr(0, pos[0]);
+	trim(thrId);
+	if(thrId.back() == '-')
+		thrId.erase(thrId.size()-1);
+		
+	time = line.substr(pos[1]+1, pos[2]-pos[1]-1);
+	trim(time);
 }
 void LogRecord::processParams()
 {
