@@ -129,8 +129,16 @@ void LogRecord::parseNewRec(const string &line)
 }
 void LogRecord::parseParam(const string &line)
 {
-	string tmp;
-	tmp = line.substr(40, 56);
+	int pos[2]; // positions of '|'
+	pos[0] = line.find_first_of("|", 0);
+	if(pos[0] == -1)
+		return;
+	pos[1] = line.find_first_of("|", pos[0]+1);
+	if(pos[1] == -1)
+		return;
+	string tmp = line.substr(pos[0]+1, pos[1]-pos[0]-1);
+	trim(tmp);
+
 	rawParams.append(" ");
 	rawParams.append(tmp);
 }
