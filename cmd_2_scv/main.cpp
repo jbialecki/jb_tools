@@ -16,6 +16,7 @@ public:
 	string len;
 	string tag;
 	string cmdBlock;
+	string opcode;
 
 	string t_CrCmdReceived;
 	void print(ostringstream &o, int cmdNum) const;
@@ -23,11 +24,25 @@ public:
 };
 void Cmd::printHeader(ostringstream &o)
 {
-	o << "cmdNum" << separator << "startLba" << separator << "len" << separator << "tag" << separator << "CR cmd received" << endl;
+	o << "cmdNum" << separator;
+	o << "tag" << separator;
+	o << "opcode" << separator;
+	o << "cmdBlock" << separator;
+	o << "startLba" << separator;
+	o << "len" << separator;
+
+	o << "CR cmd received" << endl;
 }
 void Cmd::print(ostringstream &o, int cmdNum) const
 {
-	o << cmdNum<< separator << startLba << separator << len << separator << tag << separator << t_CrCmdReceived << endl;
+	o << cmdNum << separator;
+	o << tag << separator;
+	o << opcode << separator;
+	o << cmdBlock << separator;
+	o << startLba << separator;
+	o << len << separator;
+
+	o << t_CrCmdReceived << endl;
 }
 int main(int argc, char* argv[])
 {
@@ -67,6 +82,7 @@ int main(int argc, char* argv[])
 
 	int cmdNum = 0;
 	map<int, Cmd> cmdMap;
+	map<string, int> tagIndex;
 
 	while(getline(f_in, line))
 	{
@@ -75,23 +91,41 @@ int main(int argc, char* argv[])
 		recordPtr = parser.parseLine(line);
 		if((recordPtr != nullptr) && (recordPtr->getType()==RecordType::TRACE))
 		{
-			if(recordPtr->getLabelStr().compare("CR cmd received") == 0)
+			if(recordPtr->getLabelStr().compare("HI scsi cmd rcvd") == 0)
 			{
-				Cmd cmd;
 				map<string, string> params;
 				parseParams(recordPtr->getParams(), params);
+
+				Cmd cmd;
 				cmd.tag = params["Tag"];
-				cmd.startLba = params["CmdStartLBA"];
-				cmd.len = params["CmdLen"];
+				cmd.opcode = params["opCode"];
 				cmd.t_CrCmdReceived = recordPtr->getTime();
 
-				cmdMap[cmdNum++] = cmd;
+				cmdMap[cmdNum] = cmd;
+				tagIndex[cmd.tag] = cmdNum;
 
-
+				cmdNum++;
 				recordNo++;
 
 				if(recordNo%100 == 0)
 					cout << recordNo << endl;
+			}
+			if(recordPtr->getLabelStr().compare("CR cmd received") == 0)
+			{
+				map<string, string> params;
+				parseParams(recordPtr->getParams(), params);
+
+				Cmd &cmd = cmdMap[tagIndex[params["Tag"]]];
+				cmd.startLba = params["CmdStartLBA"];
+				cmd.len = params["CmdLen"];
+			}
+			if(recordPtr->getLabelStr().compare("QM cmd remove from Q loop") == 0)
+			{
+				map<string, string> params;
+				parseParams(recordPtr->getParams(), params);
+
+				Cmd &cmd = cmdMap[tagIndex[params["tag"]]];
+				cmd.cmdBlock = params["walkPtr"];
 			}
 		}
 	}
