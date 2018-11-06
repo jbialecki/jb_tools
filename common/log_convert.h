@@ -25,13 +25,15 @@ class LogRecord
 {
 public:
 	LogRecord();
-	
+
 	RecordType  getType() const;
 	const char *getThrId() const;
 	const char *getLabel() const;
 	const char *getParams() const;
 	const char *getTime() const;
 	const char *getFileAndLine() const;
+
+	const std::string& getLabelStr() const;
 
 private:
 	RecordType type;

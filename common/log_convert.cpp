@@ -42,6 +42,11 @@ const char *LogRecord::getLabel() const
 {
 	return label.c_str();
 }
+const string &LogRecord::getLabelStr() const
+{
+	return label;
+}
+
 const char *LogRecord::getParams() const
 {
 	return processedParams.c_str();
@@ -159,7 +164,7 @@ void LogRecord::parseNewThr(const string &line)
 	trim(thrId);
 	if(thrId.back() == '-')
 		thrId.erase(thrId.size()-1);
-		
+
 	time = line.substr(pos[1]+1, pos[2]-pos[1]-1);
 	trim(time);
 }
